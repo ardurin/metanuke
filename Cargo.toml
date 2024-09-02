@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 fastrand = "2.1.0"
+lopdf = "0.33.0"

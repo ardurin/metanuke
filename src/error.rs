@@ -24,3 +24,9 @@ impl From<io::Error> for Error {
 		Error::FileSystem
 	}
 }
+
+impl From<lopdf::Error> for Error {
+	fn from(_: lopdf::Error) -> Self {
+		Error::Malformed
+	}
+}
