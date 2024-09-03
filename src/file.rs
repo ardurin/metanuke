@@ -3,18 +3,34 @@ use std::{
 	borrow::Cow,
 	env::current_dir,
 	ffi::{OsStr, OsString},
-	fs::{File, OpenOptions},
-	io::ErrorKind,
+	fs::{remove_file, rename, File, OpenOptions},
+	io::{self, ErrorKind},
 	iter::repeat_with,
 	path::{Path, PathBuf},
 };
 
 pub struct Temporary {
-	pub file: File,
-	pub path: PathBuf,
+	delete: bool,
+	path: PathBuf,
 }
 
-pub fn create_unique<P: AsRef<Path>>(directory: P) -> Result<Temporary, std::io::Error> {
+impl Temporary {
+	pub fn persist<P: AsRef<Path>>(mut self, path: P) -> io::Result<()> {
+		rename(&self.path, path)?;
+		self.delete = false;
+		Ok(())
+	}
+}
+
+impl Drop for Temporary {
+	fn drop(&mut self) {
+		if self.delete {
+			let _ = remove_file(&self.path);
+		}
+	}
+}
+
+pub fn create_unique<P: AsRef<Path>>(directory: P) -> io::Result<(File, Temporary)> {
 	let mut name = String::with_capacity(10);
 	loop {
 		name.clear();
@@ -24,8 +40,8 @@ pub fn create_unique<P: AsRef<Path>>(directory: P) -> Result<Temporary, std::io:
 		name.push_str(".tmp");
 		let path = directory.as_ref().join(&name);
 		match OpenOptions::new().create_new(true).write(true).open(&path) {
-			Ok(file) => {
-				return Ok(Temporary { path, file });
+			Ok(descriptor) => {
+				return Ok((descriptor, Temporary { delete: true, path }));
 			}
 			Err(error) => {
 				if error.kind() != ErrorKind::AlreadyExists {

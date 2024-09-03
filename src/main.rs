@@ -1,7 +1,7 @@
 use crate::{file::*, identify::identify, options::Options};
 use error::Error;
 use std::{
-	fs::{rename, File},
+	fs::File,
 	io::{BufReader, BufWriter},
 };
 
@@ -20,13 +20,13 @@ fn main() -> Result<(), Error> {
 		return Ok(());
 	};
 	let delete_metadata = identify(&options.source)?;
-	let temporary = create_unique(get_directory(&options.destination))?;
+	let (file, temporary) = create_unique(get_directory(&options.destination))?;
 	let mut reader = BufReader::new(File::open(&options.source)?);
-	let mut writer = BufWriter::new(temporary.file);
+	let mut writer = BufWriter::new(file);
 	delete_metadata(&mut reader, &mut writer)?;
 	let destination = options
 		.destination
 		.unwrap_or_else(|| create_from_template(&options.source));
-	rename(temporary.path, destination)?;
+	temporary.persist(destination)?;
 	Ok(())
 }
