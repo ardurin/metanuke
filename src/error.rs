@@ -2,6 +2,7 @@ use std::{
 	fmt::{Debug, Formatter, Result},
 	io,
 };
+use zip::result::ZipError;
 
 pub enum Error {
 	FileSystem,
@@ -28,5 +29,14 @@ impl From<io::Error> for Error {
 impl From<lopdf::Error> for Error {
 	fn from(_: lopdf::Error) -> Self {
 		Error::Malformed
+	}
+}
+
+impl From<ZipError> for Error {
+	fn from(error: ZipError) -> Self {
+		match error {
+			ZipError::Io(_) | ZipError::FileNotFound => Error::FileSystem,
+			_ => Error::Malformed,
+		}
 	}
 }
