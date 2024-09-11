@@ -26,8 +26,8 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 
 		match &chunk {
 			b"IDAT" | b"IEND" | b"IHDR" | b"PLTE" | b"acTL" | b"bKGD" | b"cHRM" | b"cICP"
-			| b"cLLi" | b"dSIG" | b"fRAc" | b"fcTL" | b"fdAT" | b"gAMA" | b"gIFt" | b"iCCP"
-			| b"mDCv" | b"sBIT" | b"sRGB" | b"sTER" | b"tRNS" => {
+			| b"fRAc" | b"fcTL" | b"fdAT" | b"gAMA" | b"gIFg" | b"iCCP" | b"sBIT" | b"sRGB"
+			| b"sTER" | b"tRNS" => {
 				destination.write(&size.to_be_bytes())?;
 				destination.write(&chunk)?;
 				let size = size as u64 + 4;
