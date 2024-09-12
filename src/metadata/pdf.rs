@@ -1,5 +1,5 @@
 use crate::error::Error;
-use lopdf::Document;
+use lopdf::{Document, Object};
 use std::io::{Read, Write};
 
 pub fn delete_metadata<R: Read, W: Write>(
@@ -10,9 +10,22 @@ pub fn delete_metadata<R: Read, W: Write>(
 	source.read_to_end(&mut data)?;
 	let mut delete = vec![];
 	let mut document = Document::load_from(data.as_slice())?;
-	for (identifier, object) in document.objects.iter() {
-		if let Ok("Metadata") = object.type_name() {
-			delete.push(identifier.clone());
+	if let Ok(Object::Reference(reference)) = document.trailer.get(b"Info") {
+		delete.push(*reference);
+	}
+	// Document::delete_object does not check the trailer for references to that object
+	document.trailer.remove(b"Info");
+	for (reference, object) in document.objects.iter_mut() {
+		match object.type_name() {
+			Ok("DocTimeStamp") | Ok("Metadata") | Ok("Sig") => {
+				delete.push(*reference);
+			}
+			_ => {
+				if let Ok(dictionary) = object.as_dict_mut() {
+					dictionary.remove(b"LastModified");
+					dictionary.remove(b"PieceInfo");
+				}
+			}
 		}
 	}
 	for identifier in delete {
