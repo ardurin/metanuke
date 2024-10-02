@@ -10,8 +10,6 @@ for suite in ${1:-jpeg pdf png}; do
 		elif [ "${suite}" = png ]; then
 			pngcheck "${processed}" >/dev/null || echo "PNG #${i}: failed"
 		elif [ "${suite}" = pdf ]; then
-			# Temporary hack until https://github.com/J-F-Liu/lopdf/issues/331 is fixed
-			sed -i 's|/Prev [0-9][0-9]*\([/>]\)|\1|g' "${processed}"
 			(qpdf --check "${processed}" >/dev/null 2>&1 && [ $(pdfinfo "${processed}" | wc -l) = 14 ]) || echo "PDF #${i}: failed"
 		fi
 		i=$((i + 1))
