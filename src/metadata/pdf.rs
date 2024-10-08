@@ -13,6 +13,10 @@ pub fn delete_metadata<R: Read, W: Write>(
 		document: Document::new(),
 	}
 	.read(Some(evaluate))?;
+	if document.is_encrypted() {
+		// lopdf does not correctly parse PDFs with encrypted object streams
+		return Err(Error::Encrypted);
+	}
 	if let Some(Object::Reference(identifier)) = document.trailer.remove(b"Info") {
 		document.delete_object(identifier);
 	}

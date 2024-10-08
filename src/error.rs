@@ -5,6 +5,7 @@ use std::{
 use zip::result::ZipError;
 
 pub enum Error {
+	Encrypted,
 	FileSystem,
 	Malformed,
 	Unsupported,
@@ -16,6 +17,7 @@ impl Debug for Error {
 			Error::Malformed => write!(formatter, "malformed file"),
 			Error::Unsupported => write!(formatter, "format not supported"),
 			Error::FileSystem => write!(formatter, "could not read file"),
+			Error::Encrypted => write!(formatter, "encrypted PDFs are not supported"),
 		}
 	}
 }
