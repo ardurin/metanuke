@@ -4,7 +4,7 @@ processed=$(mktemp)
 for suite in ${1:-jpeg pdf png}; do
 	i=1
 	for original in test/"${suite}"/*; do
-		target/debug/mwipe -o "${processed}" "${original}"
+		target/debug/metanuke -o "${processed}" "${original}"
 		if [ "${suite}" = jpeg ]; then
 			jpeginfo "${processed}" >/dev/null || echo "JPEG #${i}: failed"
 		elif [ "${suite}" = png ]; then
