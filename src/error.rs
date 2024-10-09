@@ -1,3 +1,4 @@
+use quick_xml::events::attributes::AttrError;
 use std::{
 	fmt::{Debug, Formatter, Result},
 	io,
@@ -31,6 +32,21 @@ impl From<io::Error> for Error {
 impl From<lopdf::Error> for Error {
 	fn from(_: lopdf::Error) -> Self {
 		Error::Malformed
+	}
+}
+
+impl From<AttrError> for Error {
+	fn from(_: AttrError) -> Self {
+		Error::Malformed
+	}
+}
+
+impl From<quick_xml::Error> for Error {
+	fn from(error: quick_xml::Error) -> Self {
+		match error {
+			quick_xml::Error::Io(_) => Error::FileSystem,
+			_ => Error::Malformed,
+		}
 	}
 }
 

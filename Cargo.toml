@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 fastrand = "2.1.0"
 lopdf = { git = "https://github.com/J-F-Liu/lopdf", rev = "443ab333af75438cac9c716a7473227257f44564" }
+quick-xml = "0.36.2"
 zip = "2.2.0"
