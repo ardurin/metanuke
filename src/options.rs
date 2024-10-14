@@ -13,6 +13,16 @@ impl Options {
 	}
 }
 
+macro_rules! validate {
+	($path:expr) => {
+		if $path.len() > 0 {
+			Ok(PathBuf::from($path))
+		} else {
+			Err(())
+		}
+	};
+}
+
 fn parse<I: Iterator<Item = String>>(arguments: &mut I) -> Result<Options, ()> {
 	let mut destination: Option<PathBuf> = None;
 	let mut replace = false;
@@ -32,20 +42,17 @@ fn parse<I: Iterator<Item = String>>(arguments: &mut I) -> Result<Options, ()> {
 							return Err(());
 						}
 						match arguments.next() {
-							Some(path) => destination = Some(PathBuf::from(path)),
+							Some(path) => destination = Some(validate!(path)?),
 							_ => return Err(()),
 						}
 					}
 					"--" => match arguments.next() {
 						Some(path) => {
+							let path = validate!(path)?;
 							return Ok(Options {
-								source: PathBuf::from(&path),
-								destination: if replace {
-									Some(PathBuf::from(&path))
-								} else {
-									destination
-								},
-							})
+								source: path.clone(),
+								destination: if replace { Some(path) } else { destination },
+							});
 						}
 						_ => return Err(()),
 					},
@@ -54,13 +61,10 @@ fn parse<I: Iterator<Item = String>>(arguments: &mut I) -> Result<Options, ()> {
 					}
 				}
 			} else {
+				let path = validate!(argument)?;
 				return Ok(Options {
-					source: PathBuf::from(&argument),
-					destination: if replace {
-						Some(PathBuf::from(&argument))
-					} else {
-						destination
-					},
+					source: path.clone(),
+					destination: if replace { Some(path) } else { destination },
 				});
 			}
 		} else {
@@ -153,6 +157,18 @@ mod test {
 				source: PathBuf::from("-.png"),
 			})
 		);
+	}
+
+	#[test]
+	fn empty_source() {
+		let mut arguments = vec!["".into(), "".into()].into_iter();
+		assert!(matches!(parse(&mut arguments), Err(_)));
+	}
+
+	#[test]
+	fn empty_destination() {
+		let mut arguments = vec!["".into(), "-o".into(), "".into(), "in.png".into()].into_iter();
+		assert!(matches!(parse(&mut arguments), Err(_)));
 	}
 
 	#[test]
