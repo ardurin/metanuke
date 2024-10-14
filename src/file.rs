@@ -2,7 +2,7 @@ use fastrand::alphanumeric;
 use std::{
 	borrow::Cow,
 	env::current_dir,
-	ffi::{OsStr, OsString},
+	ffi::OsString,
 	fs::{remove_file, rename, File, OpenOptions},
 	io::{self, ErrorKind},
 	iter::repeat_with,
@@ -33,7 +33,6 @@ impl Drop for Temporary {
 pub fn create_unique<P: AsRef<Path>>(directory: P) -> io::Result<(File, Temporary)> {
 	let mut name = String::with_capacity(10);
 	loop {
-		name.clear();
 		let random: String = repeat_with(alphanumeric).take(5).collect();
 		name.push_str(".");
 		name.push_str(random.as_str());
@@ -49,18 +48,19 @@ pub fn create_unique<P: AsRef<Path>>(directory: P) -> io::Result<(File, Temporar
 				}
 			}
 		}
+		name.clear();
 	}
 }
 
 pub fn create_from_template<P: AsRef<Path>>(template: P) -> PathBuf {
 	let template = template.as_ref();
-	let extension = template.extension().unwrap_or(OsStr::new(""));
-	let stem = template.file_stem().unwrap_or(OsStr::new(""));
+	let extension = template.extension().unwrap();
+	let stem = template.file_stem().unwrap();
 	let mut name = OsString::new();
 	name.push(stem);
 	name.push(".");
 	name.push(extension);
-	let mut i = 1;
+	let mut suffix = 1;
 	loop {
 		if OpenOptions::new()
 			.write(true)
@@ -70,11 +70,11 @@ pub fn create_from_template<P: AsRef<Path>>(template: P) -> PathBuf {
 		{
 			return PathBuf::from(name);
 		}
-		i += 1;
+		suffix += 1;
 		name.clear();
 		name.push(stem);
 		name.push("-");
-		name.push(i.to_string());
+		name.push(suffix.to_string());
 		name.push(".");
 		name.push(extension);
 	}
