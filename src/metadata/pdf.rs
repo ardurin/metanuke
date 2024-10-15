@@ -1,5 +1,5 @@
 use crate::error::Error;
-use lopdf::{Document, Object, Reader};
+use lopdf::{Dictionary, Document, Object, Reader};
 use std::io::{Read, Write};
 
 pub fn delete_metadata<R: Read, W: Write>(
@@ -29,11 +29,17 @@ fn evaluate(identifier: (u32, u16), object: &mut Object) -> Option<((u32, u16), 
 		Ok("DocTimeStamp") | Ok("Metadata") | Ok("Sig") => None,
 		_ => {
 			if let Ok(dictionary) = object.as_dict_mut() {
-				dictionary.remove(b"LastModified");
-				dictionary.remove(b"Metadata");
-				dictionary.remove(b"PieceInfo");
+				delete_entries(dictionary);
+			} else if let Ok(stream) = object.as_stream_mut() {
+				delete_entries(&mut stream.dict);
 			}
 			Some((identifier, object.clone()))
 		}
 	}
+}
+
+fn delete_entries(dictionary: &mut Dictionary) {
+	dictionary.remove(b"LastModified");
+	dictionary.remove(b"Metadata");
+	dictionary.remove(b"PieceInfo");
 }
