@@ -225,6 +225,53 @@ fn object_stream() {
 }
 
 #[test]
+fn document_checksum() {
+	let mut reader = Cursor::new(
+		b"%PDF-1.0\n\
+		1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n\
+		2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>endobj\n\
+		3 0 obj<</Type/Page/Parent 2 0 R>>endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000009 00000 n \n\
+		0000000052 00000 n \n\
+		0000000123 00000 n \n\
+		trailer<</DocChecksum/B224C4CB2C001E84531B12645C5A81CA/Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		164\n\
+		%%EOF",
+	);
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
+	assert_eq!(
+		destination,
+		b"%PDF-1.0\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
+		2 0 obj\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
+		endobj\n\
+		3 0 obj\n\
+		<</Type/Page/Parent 2 0 R>>\n\
+		endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000009 00000 n \n\
+		0000000054 00000 n \n\
+		0000000127 00000 n \n\
+		trailer\n\
+		<</Size 4/Root 1 0 R>>\n\
+		startxref\n\
+		170\n\
+		%%EOF",
+	);
+}
+
+#[test]
 fn document_information() {
 	let mut reader = Cursor::new(
 		b"%PDF-1.0\n\

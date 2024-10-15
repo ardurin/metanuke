@@ -17,9 +17,15 @@ pub fn delete_metadata<R: Read, W: Write>(
 		// lopdf does not correctly parse PDFs with encrypted object streams
 		return Err(Error::Encrypted);
 	}
-	if let Some(Object::Reference(identifier)) = document.trailer.remove(b"Info") {
-		document.delete_object(identifier);
+	document.trailer.remove(b"DocChecksum");
+	document.trailer.remove(b"Info");
+	if let Ok(catalog) = document.catalog_mut() {
+		catalog.remove(b"Lang");
+		catalog.remove(b"Legal");
+		catalog.remove(b"Perms");
+		catalog.remove(b"SpiderInfo");
 	}
+	document.prune_objects();
 	document.save_to(destination)?;
 	Ok(())
 }
