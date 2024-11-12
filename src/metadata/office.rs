@@ -1,7 +1,7 @@
 use crate::Error;
 use quick_xml::{events::Event, name::QName, reader::Reader, writer::Writer};
 use std::io::{BufReader, Read, Seek, Write};
-use zip::{write::SimpleFileOptions, CompressionMethod, ZipArchive, ZipWriter};
+use zip::{write::SimpleFileOptions, CompressionMethod, DateTime, ZipArchive, ZipWriter};
 
 pub fn delete_metadata<R: Read + Seek, W: Write + Seek>(
 	source: &mut R,
@@ -10,13 +10,15 @@ pub fn delete_metadata<R: Read + Seek, W: Write + Seek>(
 ) -> Result<(), Error> {
 	let mut source = ZipArchive::new(source)?;
 	let mut destination = ZipWriter::new(destination);
-	let options = SimpleFileOptions::default().compression_method(CompressionMethod::Stored);
+	let options = SimpleFileOptions::default()
+		.compression_method(CompressionMethod::Stored)
+		.last_modified_time(DateTime::default());
 	for i in 0..source.len() {
 		let entry = source.by_index(i)?;
 		let name = entry.name();
 		match name {
 			"[Content_Types].xml" => {
-				destination.raw_copy_file(entry)?;
+				destination.raw_copy_file_touch(entry, DateTime::default(), None)?;
 			}
 			"docProps/app.xml" => {
 				destination.start_file(name, options)?;
@@ -57,7 +59,7 @@ pub fn delete_metadata<R: Read + Seek, W: Write + Seek>(
 				}
 			}
 			name if name.starts_with(prefix) => {
-				destination.raw_copy_file(entry)?;
+				destination.raw_copy_file_touch(entry, DateTime::default(), None)?;
 			}
 			_ => {}
 		}
