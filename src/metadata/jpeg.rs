@@ -43,6 +43,7 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 			0xDB..=0xDF => {
 				copy(source, destination, &marker)?;
 			}
+			/*
 			0xE0 => {
 				let size = read_u16(source)?;
 				if size >= 16 {
@@ -65,6 +66,7 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 					skip(source, size as u64 - 2)?;
 				}
 			}
+			*/
 			_ => {
 				let size = read_u16(source)?;
 				skip(source, size as u64 - 2)?;
