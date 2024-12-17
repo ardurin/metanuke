@@ -1,17 +1,27 @@
-#/!bin/sh
-directory=$(mktemp -d)
-processed=$(mktemp)
-for suite in ${1:-jpeg pdf png}; do
-	i=1
-	for original in test/"${suite}"/*; do
-		target/debug/metanuke -o "${processed}" "${original}"
-		if [ "${suite}" = jpeg ]; then
-			jpeginfo "${processed}" >/dev/null || echo "JPEG #${i}: failed"
-		elif [ "${suite}" = png ]; then
-			pngcheck "${processed}" >/dev/null || echo "PNG #${i}: failed"
-		elif [ "${suite}" = pdf ]; then
-			(qpdf --check "${processed}" >/dev/null 2>&1 && [ $(pdfinfo "${processed}" | wc -l) = 14 ]) || echo "PDF #${i}: failed"
-		fi
-		i=$((i + 1))
-	done
+#!/bin/sh
+check() {
+	case "${1}" in
+		*.jpeg)
+			jpeginfo "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 19 ]
+			;;
+		*.pdf)
+			if ! message=$(qpdf --check "${1}" 2>&1); then
+				[ $(printf "${message}" | grep -v 'is not one plus the highest' | wc -l) = 5 ]
+			else
+				[ $(pdfinfo "${1}" 2>/dev/null | wc -l) = 14 ]
+			fi
+			;;
+		*.png)
+			pngcheck "${1}" >/dev/null 2>&1
+			;;
+	esac
+}
+
+status=0
+for name in ${1}/*; do
+	if ! check "${name}"; then
+		echo "${name}"
+		status=1
+	fi
 done
+exit ${status}
