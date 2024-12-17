@@ -7,4 +7,4 @@ edition = "2021"
 fastrand = "2.1.0"
 lopdf = { git = "https://github.com/J-F-Liu/lopdf", rev = "443ab333af75438cac9c716a7473227257f44564" }
 quick-xml = "0.36.2"
-zip = { git = "https://github.com/ardurin/zip2", rev = "957c6c58fb7356bf6834a9628f873ce3eba35cc0" }
+zip = "2.2.2"
