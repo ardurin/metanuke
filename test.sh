@@ -4,6 +4,9 @@ check() {
 		*.jpeg)
 			jpeginfo "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 19 ]
 			;;
+		*.mp4)
+			mp4ff-info "${1}" >/dev/null 2>&1
+			;;
 		*.pdf)
 			if ! message=$(qpdf --check "${1}" 2>&1); then
 				[ $(printf "${message}" | grep -v 'is not one plus the highest' | wc -l) = 5 ]

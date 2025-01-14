@@ -13,6 +13,7 @@ pub fn identify<P: AsRef<Path>>(path: P) -> Result<Function, Error> {
 		Some("docx") => Ok(docx::delete_metadata),
 		Some("jpg") => Ok(jpeg::delete_metadata),
 		Some("jpeg") => Ok(jpeg::delete_metadata),
+		Some("mp4") => Ok(mp4::delete_metadata),
 		Some("pdf") => Ok(pdf::delete_metadata),
 		Some("png") => Ok(png::delete_metadata),
 		Some("xlsx") => Ok(xlsx::delete_metadata),
