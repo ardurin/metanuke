@@ -2,7 +2,7 @@ use crate::{error::Error, metadata::*};
 use std::{
 	ffi::OsStr,
 	fs::File,
-	io::{BufReader, BufWriter, Read},
+	io::{BufReader, BufWriter, ErrorKind, Read},
 	path::Path,
 };
 
@@ -11,9 +11,12 @@ type Function = fn(&mut BufReader<File>, &mut BufWriter<File>) -> Result<(), Err
 pub fn identify<P: AsRef<Path>>(path: P) -> Result<Function, Error> {
 	let mut source = File::open(&path)?;
 	let mut signature = [0; 8];
-	if source.read(&mut signature)? < 8 {
-		return Err(Error::Unsupported);
-	}
+	if let Err(error) = source.read_exact(&mut signature) {
+		if error.kind() == ErrorKind::UnexpectedEof {
+			return Err(Error::Unsupported);
+		}
+		return Err(Error::FileSystem);
+	};
 	match signature[0] {
 		b'%' => {
 			if &signature[1..5] == b"PDF-" {

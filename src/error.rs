@@ -1,7 +1,7 @@
 use quick_xml::events::attributes::AttrError;
 use std::{
 	fmt::{Debug, Formatter, Result},
-	io,
+	io::{self, ErrorKind},
 };
 use zip::result::ZipError;
 
@@ -24,8 +24,12 @@ impl Debug for Error {
 }
 
 impl From<io::Error> for Error {
-	fn from(_: io::Error) -> Self {
-		Error::FileSystem
+	fn from(error: io::Error) -> Self {
+		if error.kind() == ErrorKind::UnexpectedEof {
+			Error::Malformed
+		} else {
+			Error::FileSystem
+		}
 	}
 }
 

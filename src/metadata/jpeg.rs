@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::util::{read_u16, read_u8, skip};
+use crate::util::{read, read_u16, read_u8, skip};
 use std::io::{self, Read, Seek, SeekFrom, Write};
 
 pub fn delete_metadata<R: Read + Seek, W: Write>(
@@ -8,13 +8,9 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 ) -> Result<(), Error> {
 	loop {
 		let mut marker: [u8; 2] = [0; 2];
-		let count = source.read(&mut marker)?;
-		if count == 0 {
+		if !read(source, &mut marker)? {
 			break;
 		}
-		if count < 2 {
-			return Err(Error::Malformed);
-		};
 
 		match marker[1] {
 			0xC0..=0xCF => {

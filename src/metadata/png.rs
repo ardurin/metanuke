@@ -1,4 +1,7 @@
-use crate::{error::Error, util::skip};
+use crate::{
+	error::Error,
+	util::{read, skip},
+};
 use std::io::{copy, Read, Seek, Write};
 
 pub fn delete_metadata<R: Read + Seek, W: Write>(
@@ -10,17 +13,13 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 	}
 	loop {
 		let mut size: [u8; 4] = [0; 4];
-		let count = source.read(&mut size)?;
-		if count == 0 {
+		if !read(source, &mut size)? {
 			break;
-		}
-		if count < 4 {
-			return Err(Error::Malformed);
 		}
 		let size = u32::from_be_bytes(size);
 
 		let mut chunk: [u8; 4] = [0; 4];
-		if source.read(&mut chunk)? < 4 {
+		if !read(source, &mut chunk)? {
 			return Err(Error::Malformed);
 		}
 

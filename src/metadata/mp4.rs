@@ -1,4 +1,7 @@
-use crate::{error::Error, util::skip};
+use crate::{
+	error::Error,
+	util::{read, skip},
+};
 use std::io::{copy, Read, Seek, Write};
 
 pub fn delete_metadata<R: Read + Seek, W: Write>(
@@ -14,24 +17,20 @@ fn process_box<R: Read + Seek, W: Write>(
 	destination: &mut W,
 ) -> Result<u64, Error> {
 	let mut size: [u8; 4] = [0; 4];
-	let count = source.read(&mut size)?;
-	if count == 0 {
+	if !read(source, &mut size)? {
 		return Ok(0);
-	}
-	if count < 4 {
-		return Err(Error::Malformed);
 	}
 	let mut size = u32::from_be_bytes(size) as u64;
 	let mut header_size = 8;
 
 	let mut name: [u8; 4] = [0; 4];
-	if source.read(&mut name)? < 4 {
+	if !read(source, &mut name)? {
 		return Err(Error::Malformed);
 	}
 
 	if size == 1 {
 		let mut data: [u8; 8] = [0; 8];
-		if source.read(&mut data)? < 8 {
+		if !read(source, &mut data)? {
 			return Err(Error::Malformed);
 		}
 		size = u64::from_be_bytes(data);
