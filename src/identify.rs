@@ -23,16 +23,25 @@ pub fn identify<P: AsRef<Path>>(path: P) -> Result<Function, Error> {
 				return Ok(pdf::delete_metadata);
 			}
 		}
+		b'I' => {
+			if &signature[1..3] == b"D3" {
+				return Ok(mp3::delete_metadata);
+			}
+		}
 		0x89 => {
 			if signature[1..8] == [0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] {
 				return Ok(png::delete_metadata);
 			}
 		}
-		0xFF => {
-			if signature[1..3] == [0xD8, 0xFF] {
-				return Ok(jpeg::delete_metadata);
+		0xFF => match signature[1] {
+			0xD8 => {
+				if signature[2] == 0xFF {
+					return Ok(jpeg::delete_metadata);
+				}
 			}
-		}
+			0xF2 | 0xF3 | 0xFA | 0xFB => return Ok(mp3::delete_metadata),
+			_ => {}
+		},
 		0x50 => {
 			if signature[1..4] == [0x4B, 0x03, 0x04] {
 				match path.as_ref().extension().and_then(OsStr::to_str) {
