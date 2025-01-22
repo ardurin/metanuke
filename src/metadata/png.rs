@@ -27,8 +27,8 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 			b"IDAT" | b"IEND" | b"IHDR" | b"PLTE" | b"acTL" | b"bKGD" | b"cHRM" | b"cICP"
 			| b"fRAc" | b"fcTL" | b"fdAT" | b"gAMA" | b"gIFg" | b"iCCP" | b"sBIT" | b"sRGB"
 			| b"sTER" | b"tRNS" => {
-				destination.write(&size.to_be_bytes())?;
-				destination.write(&chunk)?;
+				destination.write_all(&size.to_be_bytes())?;
+				destination.write_all(&chunk)?;
 				let size = size as u64 + 4;
 				if copy(&mut source.take(size), destination)? < size {
 					return Err(Error::Malformed);

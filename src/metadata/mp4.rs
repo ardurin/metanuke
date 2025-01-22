@@ -52,23 +52,23 @@ fn process_box<R: Read + Seek, W: Write>(
 				count += child_size
 			}
 			if data.len() > u32::MAX as usize {
-				destination.write(&[0, 0, 0, 1])?;
-				destination.write(&name)?;
-				destination.write(&(data.len() as u64 + 16).to_be_bytes())?;
+				destination.write_all(&[0, 0, 0, 1])?;
+				destination.write_all(&name)?;
+				destination.write_all(&(data.len() as u64 + 16).to_be_bytes())?;
 			} else {
-				destination.write(&(data.len() as u32 + 8).to_be_bytes())?;
-				destination.write(&name)?;
+				destination.write_all(&(data.len() as u32 + 8).to_be_bytes())?;
+				destination.write_all(&name)?;
 			}
-			destination.write(&data)?;
+			destination.write_all(&data)?;
 		}
 		_ => {
 			if header_size == 16 {
-				destination.write(&[0, 0, 0, 1])?;
-				destination.write(&name)?;
-				destination.write(&size.to_be_bytes())?;
+				destination.write_all(&[0, 0, 0, 1])?;
+				destination.write_all(&name)?;
+				destination.write_all(&size.to_be_bytes())?;
 			} else {
-				destination.write(&(size as u32).to_be_bytes())?;
-				destination.write(&name)?;
+				destination.write_all(&(size as u32).to_be_bytes())?;
+				destination.write_all(&name)?;
 			}
 			let size = size - header_size;
 			if copy(&mut source.take(size), destination)? < size {

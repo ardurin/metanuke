@@ -34,7 +34,7 @@ pub fn create_unique<P: AsRef<Path>>(directory: P) -> io::Result<(File, Temporar
 	let mut name = String::with_capacity(10);
 	loop {
 		let random: String = repeat_with(alphanumeric).take(5).collect();
-		name.push_str(".");
+		name.push('.');
 		name.push_str(random.as_str());
 		name.push_str(".tmp");
 		let path = directory.as_ref().join(&name);
@@ -84,7 +84,7 @@ pub fn get_directory(file: &Option<PathBuf>) -> Cow<Path> {
 	match file {
 		Some(path) => match path.parent() {
 			Some(path) => {
-				if path.as_os_str().len() == 0 {
+				if path.as_os_str().is_empty() {
 					Cow::Owned(current_dir().unwrap())
 				} else {
 					Cow::Borrowed(path)

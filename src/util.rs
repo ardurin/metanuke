@@ -8,8 +8,8 @@ pub fn read<R: Read>(source: &mut R, data: &mut [u8]) -> Result<bool, Error> {
 	if source.read(slice::from_mut(&mut data[0]))? < 1 {
 		return Ok(false);
 	}
-	for i in 1..data.len() {
-		if source.read(slice::from_mut(&mut data[i]))? < 1 {
+	for value in data.iter_mut().skip(1) {
+		if source.read(slice::from_mut(value))? < 1 {
 			return Err(Error::Malformed);
 		}
 	}
@@ -30,7 +30,7 @@ pub fn read_u16<R: Read>(source: &mut R) -> Result<u16, Error> {
 }
 
 pub fn skip<S: Seek>(source: &mut S, size: u64) -> Result<(), Error> {
-	let position = source.seek(SeekFrom::Current(0))?;
+	let position = source.stream_position()?;
 	if source.seek(SeekFrom::Current(size as i64))? < position + size {
 		return Err(Error::Malformed);
 	}

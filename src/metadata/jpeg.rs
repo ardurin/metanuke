@@ -17,7 +17,7 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 				copy(source, destination, &marker)?;
 			}
 			0xD0..=0xD9 => {
-				destination.write(&marker)?;
+				destination.write_all(&marker)?;
 			}
 			0xDA => {
 				copy(source, destination, &marker)?;
@@ -26,13 +26,13 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 					if value == 0xFF {
 						let next = read_u8(source)?;
 						if next == 0 {
-							destination.write(&[value, next])?;
+							destination.write_all(&[value, next])?;
 						} else {
 							source.seek(SeekFrom::Current(-2))?;
 							break;
 						}
 					} else {
-						destination.write(&[value])?;
+						destination.write_all(&[value])?;
 					}
 				}
 			}
@@ -77,9 +77,9 @@ fn copy<T: Read, U: Write>(
 	destination: &mut U,
 	marker: &[u8; 2],
 ) -> Result<(), Error> {
-	destination.write(marker)?;
+	destination.write_all(marker)?;
 	let size = read_u16(source)?;
-	destination.write(&size.to_be_bytes())?;
+	destination.write_all(&size.to_be_bytes())?;
 	if size > 2 {
 		let size = size as u64 - 2;
 		if io::copy(&mut source.take(size), destination)? < size {
