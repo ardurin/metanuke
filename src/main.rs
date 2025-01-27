@@ -16,7 +16,7 @@ mod util;
 
 fn main() -> Result<(), Error> {
 	let Ok(options) = Options::parse() else {
-		println!("Usage: metanuke [-o <file>|--replace] <file>");
+		println!("Usage: metanuke [-o <file>|--replace] <file>\n\nDelete all metadata from files");
 		return Ok(());
 	};
 	let delete_metadata = identify(&options.source)?;
