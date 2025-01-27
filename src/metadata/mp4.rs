@@ -51,7 +51,7 @@ fn process_box<R: Read + Seek, W: Write>(
 				}
 				count += child_size
 			}
-			if data.len() > u32::MAX as usize {
+			if data.len() + 8 > u32::MAX as usize {
 				destination.write_all(&[0, 0, 0, 1])?;
 				destination.write_all(&name)?;
 				destination.write_all(&(data.len() as u64 + 16).to_be_bytes())?;

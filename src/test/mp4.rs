@@ -31,6 +31,31 @@ fn extended_size() {
 }
 
 #[test]
+fn container_extended_size() {
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	let mut source = vec![0; u32::MAX as usize + 9];
+	source[3] = 0x01;
+	source[4] = b'm';
+	source[5] = b'o';
+	source[6] = b'o';
+	source[7] = b'v';
+	source[11] = 0x01;
+	source[15] = 0x08;
+	source[16] = 0xFF;
+	source[17] = 0xFF;
+	source[18] = 0xFF;
+	source[19] = 0xF8;
+	source[20] = b'u';
+	source[21] = b'd';
+	source[22] = b't';
+	source[23] = b'a';
+	let mut reader = Cursor::new(&source);
+	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
+	assert_eq!(source, destination);
+}
+
+#[test]
 fn free() {
 	let mut destination = Vec::new();
 	let mut writer = Cursor::new(&mut destination);
