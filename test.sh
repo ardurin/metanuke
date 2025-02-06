@@ -5,7 +5,7 @@ check() {
 			jpeginfo "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 19 ]
 			;;
 		*.mp3)
-			mp3check -c "${1}" >/dev/null 2>&1
+			mp3check -c "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 22 ]
 			;;
 		*.mp4)
 			mp4ff-info "${1}" >/dev/null 2>&1

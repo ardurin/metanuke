@@ -4,20 +4,39 @@ use crate::{
 };
 use std::io::{copy, Read, Seek, Write};
 
+const XING_SIZE: usize = 120;
+
 pub fn delete_metadata<R: Read + Seek, W: Write>(
 	source: &mut R,
 	destination: &mut W,
 ) -> Result<(), Error> {
+	let mut start = true;
 	loop {
-		let mut data = [0; 4];
-		if !read(source, &mut data)? {
+		let mut header = [0; 4];
+		if !read(source, &mut header)? {
 			break;
 		}
-		if data[0] == 0xFF {
-			let size = parse_header(&data)?;
-			destination.write_all(&data)?;
+		if header[0] == 0xFF {
+			let (size, position) = parse_header(&header)?;
+			if start {
+				start = false;
+				if size >= XING_SIZE {
+					let mut data = [0; 36];
+					source.read_exact(&mut data)?;
+					let name = &data[position..position + 4];
+					if name == b"Info" || name == b"Xing" {
+						skip(source, size as u64 - 40)?;
+					} else {
+						destination.write_all(&header)?;
+						destination.write_all(&data)?;
+						copy(&mut source.take(size as u64 - 40), destination)?;
+					}
+					continue;
+				}
+			}
+			destination.write_all(&header)?;
 			copy(&mut source.take(size as u64 - 4), destination)?;
-		} else if &data[0..3] == b"ID3" {
+		} else if &header[0..3] == b"ID3" {
 			skip(source, 2)?;
 			let mut data = [0; 4];
 			if !read(source, &mut data)? {
@@ -25,7 +44,7 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 			}
 			let size = size(&data);
 			skip(source, size as u64)?;
-		} else if &data[0..3] == b"TAG" {
+		} else if &header[0..3] == b"TAG" {
 			break;
 		} else {
 			return Err(Error::Malformed);
@@ -46,11 +65,19 @@ enum Layer {
 	L3,
 }
 
-fn parse_header(header: &[u8; 4]) -> Result<usize, Error> {
+fn parse_header(header: &[u8; 4]) -> Result<(usize, usize), Error> {
 	let version = match header[1] & 0b00011000 {
 		0b00011000 => Version::V1,
 		0b00010000 => Version::V2,
 		_ => return Err(Error::Malformed),
+	};
+
+	let is_mono = (header[3] & 0b11000000) == 0b11000000;
+	let xing_position = match (&version, is_mono) {
+		(Version::V1, false) => 32,
+		(Version::V1, true) => 17,
+		(Version::V2, false) => 17,
+		(Version::V2, true) => 9,
 	};
 
 	let layer = match header[1] & 0b00000110 {
@@ -174,7 +201,7 @@ fn parse_header(header: &[u8; 4]) -> Result<usize, Error> {
 		(Version::V2, Layer::L3) => 72,
 	};
 
-	Ok(size * bitrate / samples + padding)
+	Ok((size * bitrate / samples + padding, xing_position))
 }
 
 fn size(data: &[u8; 4]) -> u32 {
