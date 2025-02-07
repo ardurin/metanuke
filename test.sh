@@ -11,11 +11,7 @@ check() {
 			mp4ff-info "${1}" >/dev/null 2>&1
 			;;
 		*.pdf)
-			if ! message=$(qpdf --check "${1}" 2>&1); then
-				[ $(printf "${message}" | grep -v 'is not one plus the highest' | wc -l) = 5 ]
-			else
-				[ $(pdfinfo "${1}" 2>/dev/null | wc -l) = 14 ]
-			fi
+			qpdf --check "${name}" >/dev/null 2>&1 && [ $(pdfinfo "${name}" 2>/dev/null | wc -l) = 14 ]
 			;;
 		*.png)
 			pngcheck "${1}" >/dev/null 2>&1

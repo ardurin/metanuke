@@ -26,6 +26,7 @@ pub fn delete_metadata<R: Read, W: Write>(
 		catalog.remove(b"SpiderInfo");
 	}
 	document.prune_objects();
+	document.renumber_objects();
 	document.save_to(destination)?;
 	Ok(())
 }

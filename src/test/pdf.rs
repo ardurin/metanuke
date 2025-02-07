@@ -208,13 +208,13 @@ fn object_stream() {
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
 		2 0 obj\n\
-		<</Type/Pages/Count 1/Kids[4 0 R]/MediaBox[0 0 595 842]>>\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
 		endobj\n\
-		4 0 obj\n\
+		3 0 obj\n\
 		<</Type/Page/Parent 2 0 R>>\n\
 		endobj\n\
-		5 0 obj\n\
-		<</Type/XRef/Root 1 0 R/Size 6/W[1 4 2]/Index[1 2 4 2]/Length 28>>stream\n\
+		4 0 obj\n\
+		<</Type/XRef/Root 1 0 R/Size 5/W[1 4 2]/Index[1 4]/Length 28>>stream\n\
 		\x01\x00\x00\x00\x09\x00\x00\x01\x00\x00\x00\x36\x00\x00\x01\x00\x00\x00\x7F\x00\x00\x01\x00\x00\x00\xAA\x00\x00\n\
 		endstream \n\
 		endobj\n\n\
@@ -297,24 +297,23 @@ fn document_information() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.0\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
 		2 0 obj\n\
-		<</Type/Catalog/Pages 3 0 R>>\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
 		endobj\n\
 		3 0 obj\n\
-		<</Type/Pages/Count 1/Kids[4 0 R]/MediaBox[0 0 595 842]>>\n\
-		endobj\n\
-		4 0 obj\n\
-		<</Type/Page/Parent 3 0 R>>\n\
+		<</Type/Page/Parent 2 0 R>>\n\
 		endobj\n\
 		xref\n\
-		0 1\n\
+		0 4\n\
 		0000000000 65535 f \n\
-		2 3\n\
 		0000000009 00000 n \n\
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Size 5/Root 2 0 R>>\n\
+		<</Size 4/Root 1 0 R>>\n\
 		startxref\n\
 		170\n\
 		%%EOF",
@@ -347,24 +346,23 @@ fn document_information_deprecated() {
 	assert_eq!(
 		destination,
 		b"%PDF-2.0\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
 		2 0 obj\n\
-		<</Type/Catalog/Pages 3 0 R>>\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
 		endobj\n\
 		3 0 obj\n\
-		<</Type/Pages/Count 1/Kids[4 0 R]/MediaBox[0 0 595 842]>>\n\
-		endobj\n\
-		4 0 obj\n\
-		<</Type/Page/Parent 3 0 R>>\n\
+		<</Type/Page/Parent 2 0 R>>\n\
 		endobj\n\
 		xref\n\
-		0 1\n\
+		0 4\n\
 		0000000000 65535 f \n\
-		2 3\n\
 		0000000009 00000 n \n\
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Size 5/Root 2 0 R>>\n\
+		<</Size 4/Root 1 0 R>>\n\
 		startxref\n\
 		170\n\
 		%%EOF",
@@ -423,7 +421,7 @@ fn document_metadata() {
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF",
@@ -482,7 +480,7 @@ fn object_metadata() {
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF"
@@ -541,7 +539,7 @@ fn detached_metadata() {
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF"
@@ -590,7 +588,7 @@ fn signature() {
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF",
@@ -627,20 +625,19 @@ fn free_object() {
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
 		2 0 obj\n\
-		<</Type/Pages/Count 1/Kids[4 0 R]/MediaBox[0 0 595 842]>>\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
 		endobj\n\
-		4 0 obj\n\
+		3 0 obj\n\
 		<</Type/Page/Parent 2 0 R>>\n\
 		endobj\n\
 		xref\n\
-		0 3\n\
+		0 4\n\
 		0000000000 65535 f \n\
 		0000000009 00000 n \n\
 		0000000054 00000 n \n\
-		4 1\n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF"
@@ -689,7 +686,7 @@ fn unreferenced_object() {
 		0000000054 00000 n \n\
 		0000000127 00000 n \n\
 		trailer\n\
-		<</Root 1 0 R/Size 5>>\n\
+		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
 		170\n\
 		%%EOF",
