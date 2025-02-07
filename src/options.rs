@@ -13,62 +13,44 @@ impl Options {
 	}
 }
 
-macro_rules! validate {
-	($path:expr) => {
-		if $path.len() > 0 {
-			Ok(PathBuf::from($path))
-		} else {
-			Err(())
-		}
-	};
-}
-
 fn parse<I: Iterator<Item = String>>(arguments: &mut I) -> Result<Options, ()> {
 	let mut destination: Option<PathBuf> = None;
 	let mut replace = false;
 	arguments.next();
 	loop {
-		if let Some(argument) = arguments.next() {
-			if argument.starts_with('-') {
-				match argument.as_str() {
-					"--replace" => {
-						if destination.is_some() {
-							return Err(());
-						}
-						replace = true;
-					}
-					"-o" => {
-						if replace {
-							return Err(());
-						}
-						match arguments.next() {
-							Some(path) => destination = Some(validate!(path)?),
-							_ => return Err(()),
-						}
-					}
-					"--" => match arguments.next() {
-						Some(path) => {
-							let path = validate!(path)?;
-							return Ok(Options {
-								source: path.clone(),
-								destination: if replace { Some(path) } else { destination },
-							});
-						}
-						_ => return Err(()),
-					},
-					_ => {
-						return Err(());
-					}
+		match arguments.next().as_deref() {
+			Some("--replace") if destination.is_none() => {
+				replace = true;
+			}
+			Some("-o") if !replace => match arguments.next() {
+				Some(path) if !path.is_empty() => destination = Some(PathBuf::from(path)),
+				_ => return Err(()),
+			},
+			Some("--") => {
+				return match arguments.next() {
+					Some(argument) if !argument.is_empty() => Ok(Options {
+						source: PathBuf::from(&argument),
+						destination: if replace {
+							Some(PathBuf::from(&argument))
+						} else {
+							destination
+						},
+					}),
+					_ => Err(()),
 				}
-			} else {
-				let path = validate!(argument)?;
+			}
+			Some(argument) if argument.starts_with('-') => return Err(()),
+			Some(argument) if !argument.is_empty() => {
 				return Ok(Options {
-					source: path.clone(),
-					destination: if replace { Some(path) } else { destination },
+					source: PathBuf::from(&argument),
+					destination: if replace {
+						Some(PathBuf::from(&argument))
+					} else {
+						destination
+					},
 				});
 			}
-		} else {
-			return Err(());
+			_ => return Err(()),
 		}
 	}
 }
@@ -79,7 +61,7 @@ mod test {
 	use std::path::PathBuf;
 
 	#[test]
-	fn minimal() {
+	fn basic() {
 		let mut arguments = vec!["".into(), "in.png".into()].into_iter();
 		assert_eq!(
 			parse(&mut arguments),
