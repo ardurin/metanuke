@@ -6,3 +6,4 @@ mod office;
 pub mod pdf;
 pub mod png;
 pub mod xlsx;
+pub mod zip;

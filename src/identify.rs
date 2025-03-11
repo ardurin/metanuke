@@ -47,7 +47,7 @@ pub fn identify<P: AsRef<Path>>(path: P) -> Result<Function, Error> {
 				match path.as_ref().extension().and_then(OsStr::to_str) {
 					Some("docx") => return Ok(docx::delete_metadata),
 					Some("xlsx") => return Ok(xlsx::delete_metadata),
-					_ => {}
+					_ => return Ok(zip::delete_metadata),
 				}
 			}
 		}

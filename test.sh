@@ -16,6 +16,9 @@ check() {
 		*.png)
 			pngcheck "${1}" >/dev/null 2>&1
 			;;
+		*.zip)
+			zip -T "${1}" >/dev/null 2>&1
+			;;
 	esac
 }
 
