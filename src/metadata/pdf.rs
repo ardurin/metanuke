@@ -33,7 +33,7 @@ pub fn delete_metadata<R: Read, W: Write>(
 
 fn evaluate(identifier: (u32, u16), object: &mut Object) -> Option<((u32, u16), Object)> {
 	match object.type_name() {
-		Ok("DocTimeStamp") | Ok("Metadata") | Ok("Sig") => None,
+		Ok(b"DocTimeStamp") | Ok(b"Metadata") | Ok(b"Sig") => None,
 		_ => {
 			if let Ok(dictionary) = object.as_dict_mut() {
 				delete_entries(dictionary);

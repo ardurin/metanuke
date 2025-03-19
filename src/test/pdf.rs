@@ -25,6 +25,7 @@ fn basic() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.0\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -37,13 +38,13 @@ fn basic() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -72,6 +73,7 @@ fn comments() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.1\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -84,13 +86,160 @@ fn comments() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
+		176\n\
+		%%EOF",
+	);
+}
+
+#[test]
+fn comment_after_header() {
+	let mut reader = Cursor::new(
+		b"%PDF-1.0\n\
+		% Just a regular comment\n\
+		1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n\
+		2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>endobj\n\
+		3 0 obj<</Type/Page/Parent 2 0 R>>endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000034 00000 n \n\
+		0000000077 00000 n \n\
+		0000000148 00000 n \n\
+		trailer<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		189\n\
+		%%EOF",
+	);
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
+	assert_eq!(
+		destination,
+		b"%PDF-1.0\n\
+		%\xBB\xAD\xC0\xDE\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
+		2 0 obj\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
+		endobj\n\
+		3 0 obj\n\
+		<</Type/Page/Parent 2 0 R>>\n\
+		endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
+		trailer\n\
+		<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		176\n\
+		%%EOF",
+	);
+}
+
+#[test]
+fn binary_comment() {
+	let mut reader = Cursor::new(
+		b"%PDF-1.0\n\
+		%\x80\x80\x80\x80\n\
+		1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n\
+		2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>endobj\n\
+		3 0 obj<</Type/Page/Parent 2 0 R>>endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000015 00000 n \n\
+		0000000058 00000 n \n\
+		0000000129 00000 n \n\
+		trailer<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
 		170\n\
+		%%EOF",
+	);
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
+	assert_eq!(
+		destination,
+		b"%PDF-1.0\n\
+		%\x80\x80\x80\x80\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
+		2 0 obj\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
+		endobj\n\
+		3 0 obj\n\
+		<</Type/Page/Parent 2 0 R>>\n\
+		endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
+		trailer\n\
+		<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		176\n\
+		%%EOF",
+	);
+}
+
+#[test]
+fn binary_comment_with_ascii() {
+	let mut reader = Cursor::new(
+		b"%PDF-1.0\n\
+		% \x80\x80\x80\x80\n\
+		1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n\
+		2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>endobj\n\
+		3 0 obj<</Type/Page/Parent 2 0 R>>endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000016 00000 n \n\
+		0000000059 00000 n \n\
+		0000000130 00000 n \n\
+		trailer<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		171\n\
+		%%EOF",
+	);
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
+	assert_eq!(
+		destination,
+		b"%PDF-1.0\n\
+		%\xBB\xAD\xC0\xDE\n\
+		1 0 obj\n\
+		<</Type/Catalog/Pages 2 0 R>>\n\
+		endobj\n\
+		2 0 obj\n\
+		<</Type/Pages/Count 1/Kids[3 0 R]/MediaBox[0 0 595 842]>>\n\
+		endobj\n\
+		3 0 obj\n\
+		<</Type/Page/Parent 2 0 R>>\n\
+		endobj\n\
+		xref\n\
+		0 4\n\
+		0000000000 65535 f \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
+		trailer\n\
+		<</Root 1 0 R/Size 4>>\n\
+		startxref\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -119,6 +268,7 @@ fn extra() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.2\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -131,13 +281,13 @@ fn extra() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -162,6 +312,7 @@ fn cross_reference_stream() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.5\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -173,11 +324,11 @@ fn cross_reference_stream() {
 		endobj\n\
 		4 0 obj\n\
 		<</Type/XRef/Root 1 0 R/Size 5/W[1 4 2]/Index[1 4]/Length 28>>stream\n\
-		\x01\x00\x00\x00\x09\x00\x00\x01\x00\x00\x00\x36\x00\x00\x01\x00\x00\x00\x7F\x00\x00\x01\x00\x00\x00\xAA\x00\x00\n\
+		\x01\x00\x00\x00\x0F\x00\x00\x01\x00\x00\x00\x3C\x00\x00\x01\x00\x00\x00\x85\x00\x00\x01\x00\x00\x00\xB0\x00\x00\n\
 		endstream \n\
 		endobj\n\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -204,6 +355,7 @@ fn object_stream() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.5\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -215,11 +367,11 @@ fn object_stream() {
 		endobj\n\
 		4 0 obj\n\
 		<</Type/XRef/Root 1 0 R/Size 5/W[1 4 2]/Index[1 4]/Length 28>>stream\n\
-		\x01\x00\x00\x00\x09\x00\x00\x01\x00\x00\x00\x36\x00\x00\x01\x00\x00\x00\x7F\x00\x00\x01\x00\x00\x00\xAA\x00\x00\n\
+		\x01\x00\x00\x00\x0F\x00\x00\x01\x00\x00\x00\x3C\x00\x00\x01\x00\x00\x00\x85\x00\x00\x01\x00\x00\x00\xB0\x00\x00\n\
 		endstream \n\
 		endobj\n\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -248,6 +400,7 @@ fn document_checksum() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.0\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -260,13 +413,13 @@ fn document_checksum() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Size 4/Root 1 0 R>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -297,6 +450,7 @@ fn document_information() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.0\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -309,13 +463,13 @@ fn document_information() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Size 4/Root 1 0 R>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -346,6 +500,7 @@ fn document_information_deprecated() {
 	assert_eq!(
 		destination,
 		b"%PDF-2.0\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -358,13 +513,13 @@ fn document_information_deprecated() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Size 4/Root 1 0 R>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -405,6 +560,7 @@ fn document_metadata() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.6\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -417,13 +573,13 @@ fn document_metadata() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -464,6 +620,7 @@ fn object_metadata() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.7\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -476,13 +633,13 @@ fn object_metadata() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF"
 	);
 }
@@ -523,6 +680,7 @@ fn detached_metadata() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.7\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -535,13 +693,13 @@ fn detached_metadata() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF"
 	);
 }
@@ -572,6 +730,7 @@ fn signature() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.2\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -584,13 +743,13 @@ fn signature() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
@@ -621,6 +780,7 @@ fn free_object() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.4\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -633,13 +793,13 @@ fn free_object() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF"
 	);
 }
@@ -670,6 +830,7 @@ fn unreferenced_object() {
 	assert_eq!(
 		destination,
 		b"%PDF-1.4\n\
+		%\xBB\xAD\xC0\xDE\n\
 		1 0 obj\n\
 		<</Type/Catalog/Pages 2 0 R>>\n\
 		endobj\n\
@@ -682,13 +843,13 @@ fn unreferenced_object() {
 		xref\n\
 		0 4\n\
 		0000000000 65535 f \n\
-		0000000009 00000 n \n\
-		0000000054 00000 n \n\
-		0000000127 00000 n \n\
+		0000000015 00000 n \n\
+		0000000060 00000 n \n\
+		0000000133 00000 n \n\
 		trailer\n\
 		<</Root 1 0 R/Size 4>>\n\
 		startxref\n\
-		170\n\
+		176\n\
 		%%EOF",
 	);
 }
