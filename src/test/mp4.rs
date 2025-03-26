@@ -57,14 +57,15 @@ fn container_extended_size() {
 
 #[test]
 fn free() {
-	let mut destination = Vec::new();
-	let mut writer = Cursor::new(&mut destination);
-	let mut reader = Cursor::new([
+	let data = [
 		0x00, 0x00, 0x00, 0x10, b'f', b't', b'y', b'p', b'm', b'p', b'4', b'2', 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x0C, b'f', b'r', b'e', b'e', 0x00, 0x00, 0x00, 0x00,
-	]);
+	];
+	let mut destination = Vec::new();
+	let mut writer = Cursor::new(&mut destination);
+	let mut reader = Cursor::new(&data);
 	assert!(matches!(delete_metadata(&mut reader, &mut writer), Ok(())));
-	assert_eq!(destination, BASIC);
+	assert_eq!(destination, data);
 }
 
 #[test]

@@ -38,7 +38,7 @@ fn process_box<R: Read + Seek, W: Write>(
 	}
 
 	match &name {
-		b"free" | b"meco" | b"meta" | b"skip" => {
+		b"meco" | b"meta" | b"skip" => {
 			skip(source, size - header_size)?;
 		}
 		b"moof" | b"moov" | b"traf" | b"trak" => {
