@@ -14,30 +14,21 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 
 		match marker[1] {
 			0xC0..=0xCF => {
-				copy(source, destination, &marker)?;
+				copy_header(source, destination, &marker)?;
 			}
-			0xD0..=0xD9 => {
+			0xD0..=0xD7 => {
+				destination.write_all(&marker)?;
+				copy_data(source, destination)?;
+			}
+			0xD8..=0xD9 => {
 				destination.write_all(&marker)?;
 			}
 			0xDA => {
-				copy(source, destination, &marker)?;
-				loop {
-					let value = read_u8(source)?;
-					if value == 0xFF {
-						let next = read_u8(source)?;
-						if next == 0 {
-							destination.write_all(&[value, next])?;
-						} else {
-							source.seek(SeekFrom::Current(-2))?;
-							break;
-						}
-					} else {
-						destination.write_all(&[value])?;
-					}
-				}
+				copy_header(source, destination, &marker)?;
+				copy_data(source, destination)?;
 			}
 			0xDB..=0xDF => {
-				copy(source, destination, &marker)?;
+				copy_header(source, destination, &marker)?;
 			}
 			/*
 			0xE0 => {
@@ -72,9 +63,9 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 	Ok(())
 }
 
-fn copy<T: Read, U: Write>(
-	source: &mut T,
-	destination: &mut U,
+fn copy_header<R: Read, W: Write>(
+	source: &mut R,
+	destination: &mut W,
 	marker: &[u8; 2],
 ) -> Result<(), Error> {
 	destination.write_all(marker)?;
@@ -84,6 +75,24 @@ fn copy<T: Read, U: Write>(
 		let size = size as u64 - 2;
 		if io::copy(&mut source.take(size), destination)? < size {
 			return Err(Error::Malformed);
+		}
+	}
+	Ok(())
+}
+
+fn copy_data<R: Read + Seek, W: Write>(source: &mut R, destination: &mut W) -> Result<(), Error> {
+	loop {
+		let value = read_u8(source)?;
+		if value == 0xFF {
+			let next = read_u8(source)?;
+			if next == 0 {
+				destination.write_all(&[value, next])?;
+			} else {
+				source.seek(SeekFrom::Current(-2))?;
+				break;
+			}
+		} else {
+			destination.write_all(&[value])?;
 		}
 	}
 	Ok(())
