@@ -1,4 +1,5 @@
 pub mod docx;
+pub mod flac;
 pub mod jpeg;
 pub mod mp3;
 pub mod mp4;

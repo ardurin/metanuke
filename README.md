@@ -2,7 +2,8 @@
 
 A CLI tool that deletes all metadata from files.
 
-Supported formats: `DOCX`, `JPEG`, `MP3`, `MP4`, `PDF`, `PNG`, `XLSX`, `ZIP`
+Supported formats: `DOCX`, `FLAC`, `JPEG`, `MP3`, `MP4`, `PDF`, `PNG`, `XLSX`,
+`ZIP`
 
 
 ## Usage

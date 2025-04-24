@@ -1,3 +1,4 @@
+mod flac;
 mod jpeg;
 mod mp3;
 mod mp4;

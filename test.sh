@@ -1,6 +1,9 @@
 #!/bin/sh
 check() {
 	case "${1}" in
+		*.flac)
+			flac --test "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 21 ]
+			;;
 		*.jpeg)
 			jpeginfo "${1}" >/dev/null 2>&1 && [ $(exiftool "${1}" | wc -l) = 19 ]
 			;;
