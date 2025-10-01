@@ -28,6 +28,11 @@ pub fn identify<P: AsRef<Path>>(path: P) -> Result<Function, Error> {
 				return Ok(mp3::delete_metadata);
 			}
 		}
+		b'R' => {
+			if &signature[1..4] == b"IFF" {
+				return Ok(webp::delete_metadata);
+			}
+		}
 		b'f' => {
 			if &signature[1..4] == b"LaC" {
 				return Ok(flac::delete_metadata);

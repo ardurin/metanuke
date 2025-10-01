@@ -14,10 +14,13 @@ check() {
 			mp4ff-info "${1}" >/dev/null 2>&1
 			;;
 		*.pdf)
-			qpdf --check "${name}" >/dev/null 2>&1 && [ $(pdfinfo "${name}" 2>/dev/null | wc -l) = 14 ]
+			qpdf --check "${1}" >/dev/null 2>&1 && [ $(pdfinfo "${1}" 2>/dev/null | wc -l) = 14 ]
 			;;
 		*.png)
 			pngcheck "${1}" >/dev/null 2>&1
+			;;
+		*.webp)
+			dwebp "${1}" >/dev/null 2>&1
 			;;
 		*.zip)
 			zip -T "${1}" >/dev/null 2>&1

@@ -6,5 +6,6 @@ pub mod mp4;
 mod office;
 pub mod pdf;
 pub mod png;
+pub mod webp;
 pub mod xlsx;
 pub mod zip;

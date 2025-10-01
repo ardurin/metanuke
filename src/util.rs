@@ -29,6 +29,13 @@ pub fn read_u16<R: Read>(source: &mut R) -> Result<u16, Error> {
 	Ok(value)
 }
 
+pub fn read_u32<R: Read>(source: &mut R) -> Result<u32, Error> {
+	let mut data: [u8; 4] = [0; 4];
+	source.read_exact(&mut data)?;
+	let value = u32::from_le_bytes(data);
+	Ok(value)
+}
+
 pub fn skip<S: Seek>(source: &mut S, size: u64) -> Result<(), Error> {
 	let position = source.stream_position()?;
 	if source.seek(SeekFrom::Current(size as i64))? < position + size {
