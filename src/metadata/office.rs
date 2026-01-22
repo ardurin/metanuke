@@ -22,15 +22,15 @@ pub fn delete_metadata<R: Read + Seek, W: Write + Seek>(
 			}
 			"docProps/app.xml" => {
 				destination.start_file(name, options)?;
-				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"></Properties>"#)?;
+				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"></Properties>"#)?;
 			}
 			"docProps/core.xml" => {
 				destination.start_file(name, options)?;
-				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></cp:coreProperties>"#)?;
+				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><coreProperties xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"></coreProperties>"#)?;
 			}
 			"docProps/custom.xml" => {
 				destination.start_file(name, options)?;
-				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"></Properties>"#)?;
+				destination.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"></Properties>"#)?;
 			}
 			name if name.ends_with(".rels") && !name.starts_with("customXml") => {
 				destination.start_file(name, options)?;
