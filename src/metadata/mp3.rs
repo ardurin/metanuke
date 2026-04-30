@@ -44,6 +44,8 @@ pub fn delete_metadata<R: Read + Seek, W: Write>(
 			}
 			let size = size(&data);
 			skip(source, size as u64)?;
+		} else if &header[0..3] == b"3DI" {
+			break;
 		} else if &header[0..3] == b"TAG" {
 			break;
 		} else {
